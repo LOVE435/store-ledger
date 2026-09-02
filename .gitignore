@@ -1,0 +1,26 @@
+node_modules/
+dist/
+.gradle-home/
+android/app/src/main/assets/public/
+android/.gradle/
+android/local.properties
+android/keystore/
+*.log
+
+# 大文件 / 安装包 / 打包旁路产物：仅留本地，不入库
+*.apk
+*.idsig
+/odoo-18.0.zip
+
+# 环境变量（可能含密钥）：仅保留 .env.example
+.env
+.env.local
+.env.*.local
+
+# api-gateway 的临时残留文件
+api-gateway/package.json.tmp
+api-gateway/package.json.new
+
+# 系统 / 编辑器杂项
+.DS_Store
+Thumbs.db

@@ -85,8 +85,33 @@ npx cap sync android
 - 阿里云控制台给实例开「自动快照」（每周），出事一键回滚
 - 系统安全更新：偶尔执行 `sudo apt update && sudo apt upgrade -y`
 
+## 安全清单（已内置，上线即生效）
+
+| 项目 | 状态 |
+|---|---|
+| **HTTPS 强制** | Caddy 自动签证书 + 80→443 跳转；安卓默认禁明文，正好兜住 |
+| **3000 不对外** | compose 里 api-gateway 不映射任何宿主机端口，只有 Caddy 暴露 80/443 |
+| **JWT_SECRET 强制** | 代码已改为：生产环境缺省或使用默认密钥时**拒绝启动**（密钥存于服务器 `deploy/.env`） |
+| **防火墙** | 阿里云控制台只放行 `22/80/443`（务必不要开 3000） |
+| **非 root 运行** | Dockerfile 已用 `USER node`（uid 1000），容器内不跑 root |
+| **日志收敛** | 生产环境不再逐条打印 SQL；运行日志走 `docker logs`，不含密码/口令 |
+| **每日备份** | `backup.sh`：本地保留 14 份 + 可选同步 OSS（异地双保险） |
+
+### 异地备份到阿里云 OSS（推荐，一次配置）
+
+```bash
+# 1) 下载并配置 ossutil（用你的阿里云账号，支付宝即可）
+curl https://gosspublic.alibaba.com/ossutil/install.sh | bash
+ossutil config   # 按提示填 AccessKey ID/Secret、Endpoint(如 oss-cn-hongkong.aliyuncs.com)
+
+# 2) 在 crontab 里加上 OSS_BUCKET 即可让 backup.sh 自动同步
+# 先把下面这行加进 /root/.bashrc 或直接写进 crontab 行首：
+#   OSS_BUCKET=你的bucket名
+```
+
 ## 数据安全说明
 
 - SQLite 数据库和上传图片放在服务器 `deploy/data/`（已 gitignore，不入代码库）
-- 密钥只存在服务器 `deploy/.env`（gitignore，不提交）
+- 密钥只存在服务器 `deploy/.env`（gitignore，不提交，属主可再收紧为 600）
 - 手机端默认禁止明文 HTTP：正式环境走 `https://` 域名，安全
+- 建议阿里云控制台为实例开启**自动快照**（每周），配合每日备份双保险

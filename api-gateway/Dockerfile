@@ -14,5 +14,10 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci --omit=dev
 COPY --from=builder /app/dist ./dist
+
+# 安全：以非 root 用户(node, uid=1000)运行，降低容器逃逸风险
+RUN mkdir -p /app/data && chown -R node:node /app
+USER node
+
 EXPOSE 3000
 CMD ["node", "dist/server.js"]

@@ -64,14 +64,16 @@ export class Database {
     const isRead = /^\s*SELECT/i.test(sql) || /RETURNING/i.test(sql);
     if (isRead) {
       const rows = stmt.all(...values) as any[];
-      const duration = Date.now() - start;
-      console.log('Query executed:', { text: sql, duration, params: values });
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('Query executed:', { text: sql, duration: Date.now() - start, params: values });
+      }
       return { rows };
     }
 
     const info = stmt.run(...values);
-    const duration = Date.now() - start;
-    console.log('Query executed:', { text: sql, duration, params: values });
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('Query executed:', { text: sql, duration: Date.now() - start, params: values });
+    }
     return { rows: [], changes: Number(info.changes) };
   }
 

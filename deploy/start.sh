@@ -19,6 +19,10 @@ EOF
   echo "已写入 deploy/.env"
 fi
 
+# 数据目录交给容器内非 root 用户(node uid=1000)写
+mkdir -p data
+chown -R 1000:1000 data 2>/dev/null || true
+
 echo "==> 拉取镜像并构建后端 ..."
 docker compose -f docker-compose.prod.yml up -d --build
 

@@ -24,3 +24,7 @@ api-gateway/package.json.new
 # 系统 / 编辑器杂项
 .DS_Store
 Thumbs.db
+
+# 部署运行数据 / 密钥（不入库）
+deploy/data/
+deploy/.env

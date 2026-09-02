@@ -1,0 +1,5 @@
+# 自动 HTTPS；把 {$DOMAIN} 全部替换成你的真实域名（由 start.sh 注入）
+{$DOMAIN} {
+	# 后端 API 走反代，HTTP/WebSocket 均支持
+	reverse_proxy api-gateway:3000
+}

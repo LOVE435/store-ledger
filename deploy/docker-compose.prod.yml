@@ -1,0 +1,41 @@
+# 生产环境：api-gateway + Caddy(自动 HTTPS 反代)
+# 用法：cd deploy && DOMAIN=你的域名 JWT_SECRET=随机串 bash start.sh
+services:
+  api-gateway:
+    build:
+      context: ../api-gateway
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_FILE: /app/data/store-ledger.db
+      JWT_SECRET: ${JWT_SECRET:?请在环境变量里设置 JWT_SECRET}
+    volumes:
+      - ./data:/app/data
+    networks:
+      - ledger-net
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+    environment:
+      DOMAIN: ${DOMAIN:?请在环境变量里设置 DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - api-gateway
+    networks:
+      - ledger-net
+
+networks:
+  ledger-net:
+
+volumes:
+  caddy_data:
+  caddy_config:
